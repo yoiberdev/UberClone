@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.yoiberdev.uberclone" />
+                  <option name="mobileSdkAppId" value="1:109374279695:android:57fba79d647bb7c84fd37a" />
+                  <option name="projectId" value="uberclone-19d7a" />
+                  <option name="projectNumber" value="109374279695" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
