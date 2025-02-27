@@ -1,10 +1,6 @@
 package com.yoiberdev.uberclone.ui.screens
 
-import android.app.Activity
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -18,23 +14,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -44,12 +25,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.credentials.CredentialManager
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.identity.Identity
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.yoiberdev.uberclone.R
 import com.yoiberdev.uberclone.ui.auth.AuthViewModel
+import kotlinx.coroutines.launch
+
+// Import para Google ID
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 
 private const val WEB_CLIENT_ID = "109374279695-h4kljjl9lsmpi6fdke409ad58o2gp1vn.apps.googleusercontent.com"
 private const val TAG = "LoginScreen"
@@ -68,47 +55,16 @@ fun LoginScreen(
     var isPasswordVisible by remember { mutableStateOf(false) }
     var visible by remember { mutableStateOf(false) }
 
-    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val auth = remember { FirebaseAuth.getInstance() }
+
+    // CredentialManager para usar la nueva API
     val credentialManager = remember { CredentialManager.create(context) }
-    val auth = FirebaseAuth.getInstance()
+    val coroutineScope = rememberCoroutineScope()
 
-    // Inicializa el cliente One Tap
-    val oneTapClient = Identity.getSignInClient(context)
-
-    val googleSignInLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartIntentSenderForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            try {
-                val credential = oneTapClient.getSignInCredentialFromIntent(result.data)
-                val idToken = credential.googleIdToken
-                if (idToken != null) {
-                    val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-                    auth.signInWithCredential(firebaseCredential)
-                        .addOnCompleteListener { authTask ->
-                            isLoading = false
-                            if (authTask.isSuccessful) {
-                                onLoginSuccess()
-                            } else {
-                                errorMessage = "Error al autenticar con Google: ${authTask.exception?.message}"
-                            }
-                        }
-                } else {
-                    isLoading = false
-                    errorMessage = "Error: Token nulo"
-                }
-            } catch (e: Exception) {
-                isLoading = false
-                errorMessage = "Error al procesar el inicio de sesión: ${e.message}"
-            }
-        } else {
-            isLoading = false
-            errorMessage = "Inicio de sesión cancelado"
-        }
-    } // Cierre correcto del lambda
-
-    LaunchedEffect(Unit) { visible = true }
+    LaunchedEffect(Unit) {
+        visible = true
+    }
 
     AnimatedVisibility(
         visible = visible,
@@ -124,6 +80,7 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Icono de retroceso
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -136,18 +93,24 @@ fun LoginScreen(
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
+
             Text(
                 text = "Login para $role",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(vertical = 16.dp)
             )
+
+            // Campo de Email
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("Email") },
                 modifier = Modifier.fillMaxWidth(0.8f)
             )
+
             Spacer(modifier = Modifier.height(16.dp))
+
+            // Campo de Contraseña
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -156,19 +119,29 @@ fun LoginScreen(
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {
-                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                    IconButton(
+                        onClick = { isPasswordVisible = !isPasswordVisible }
+                    ) {
                         Icon(
-                            imageVector = if (isPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                            contentDescription = if (isPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                            imageVector = if (isPasswordVisible) Icons.Filled.Visibility
+                            else Icons.Filled.VisibilityOff,
+                            contentDescription = if (isPasswordVisible) "Ocultar contraseña"
+                            else "Mostrar contraseña"
                         )
                     }
                 }
             )
+
             Spacer(modifier = Modifier.height(8.dp))
+
+            // Mensaje de error
             errorMessage?.let {
                 Text(text = it, color = MaterialTheme.colorScheme.error)
             }
+
             Spacer(modifier = Modifier.height(24.dp))
+
+            // Botón para login con email y password
             Button(
                 onClick = {
                     isLoading = true
@@ -203,7 +176,7 @@ fun LoginScreen(
                 }
             }
 
-            // Separador entre el botón de login normal y Google
+            // Separador
             Spacer(modifier = Modifier.height(16.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(0.8f),
@@ -219,29 +192,70 @@ fun LoginScreen(
             }
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón de Google Sign-In
+            // Botón "Acceder con Google" (Credential Manager)
             OutlinedButton(
                 onClick = {
                     isLoading = true
-                    val signInRequest = BeginSignInRequest.builder()
-                        .setGoogleIdTokenRequestOptions(
-                            BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                                .setSupported(true)
-                                .setServerClientId(WEB_CLIENT_ID)
-                                .setFilterByAuthorizedAccounts(false)
-                                .build()
-                        )
+
+                    // Configura la opción para GoogleId
+                    // filterByAuthorizedAccounts(false) mostrará todas las cuentas
+                    val googleIdOption = GetGoogleIdOption.Builder()
+                        .setFilterByAuthorizedAccounts(false)
+                        .setServerClientId(WEB_CLIENT_ID)
+                        .setAutoSelectEnabled(true) // habilita auto-select si solo hay 1 credencial
                         .build()
 
-                    oneTapClient.beginSignIn(signInRequest)
-                        .addOnSuccessListener { result ->
-                            val intentSenderRequest = IntentSenderRequest.Builder(result.pendingIntent.intentSender).build()
-                            googleSignInLauncher.launch(intentSenderRequest)
-                        }
-                        .addOnFailureListener { e ->
+                    // Construye la solicitud
+                    val request = GetCredentialRequest.Builder()
+                        .addCredentialOption(googleIdOption)
+                        .build()
+
+                    coroutineScope.launch {
+                        try {
+                            // Llama a CredentialManager para mostrar la UI
+                            val result = credentialManager.getCredential(
+                                context = context,
+                                request = request
+                            )
+                            val credential = result.credential
+
+                            // Verificamos si el credential devuelto es un GoogleIdToken
+                            if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                                val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                                val idToken = googleIdTokenCredential.idToken
+
+                                // Intercambiar ID Token de Google por credencial de Firebase
+                                val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+                                auth.signInWithCredential(firebaseCredential).addOnCompleteListener { task ->
+                                    isLoading = false
+                                    if (task.isSuccessful) {
+                                        Log.d(TAG, "Autenticación con Firebase exitosa")
+                                        onLoginSuccess()
+                                    } else {
+                                        val error = task.exception?.message ?: "Desconocido"
+                                        Log.e(TAG, "Error al autenticar con Firebase: $error")
+                                        errorMessage = "Error al autenticar con Google: $error"
+                                    }
+                                }
+                            } else {
+                                isLoading = false
+                                Log.e(TAG, "Tipo de credencial inesperado: ${credential.type}")
+                                errorMessage = "Error: Credencial de Google no encontrada"
+                            }
+                        } catch (e: GetCredentialException) {
                             isLoading = false
+                            Log.e(TAG, "Fallo al obtener credencial", e)
+                            errorMessage = "Error al iniciar Google Sign-In: ${e.message}"
+                        } catch (e: GoogleIdTokenParsingException) {
+                            isLoading = false
+                            Log.e(TAG, "Token de Google ID inválido", e)
+                            errorMessage = "Error al parsear token de Google"
+                        } catch (e: Exception) {
+                            isLoading = false
+                            Log.e(TAG, "Error general en Google Sign-In", e)
                             errorMessage = "Error al iniciar Google Sign-In: ${e.message}"
                         }
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
@@ -252,13 +266,14 @@ fun LoginScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
+                    // Logo oficial de Google
                     Image(
                         painter = painterResource(id = R.drawable.ic_google),
                         contentDescription = "Google Icon",
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Acceder con Google")
+                    Text(text = "Acceder con Google")
                 }
             }
         }
