@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.google.firebase.auth)
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.play.services.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
