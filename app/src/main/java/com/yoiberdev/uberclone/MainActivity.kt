@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.yoiberdev.uberclone.ui.navigation.NavGraph
+import com.yoiberdev.uberclone.navigation.NavGraph
 import com.yoiberdev.uberclone.ui.theme.UberCloneTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             UberCloneTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    // Se invoca el gráfico de navegación en lugar de llamar directamente a WelcomeScreen
+                    // Ahora se utiliza el com.yoiberdev.uberclone.navigation.NavGraph ubicado en presentation.navigation
                     NavGraph(modifier = Modifier.padding(innerPadding))
                 }
             }

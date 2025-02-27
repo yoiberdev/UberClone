@@ -18,6 +18,7 @@ firebaseAuthVersion = "23.2.0"
 materialIconsExtended = "1.7.8"
 playServicesAuth = "21.3.0"
 firebaseFirestore = "25.1.2"
+koinAndroidxCompose = "4.1.0-Beta5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +48,7 @@ google-firebase-auth = { group = "com.google.firebase", name = "firebase-auth", 
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconsExtended" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koinAndroidxCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
