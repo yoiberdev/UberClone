@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.play.services.auth)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -67,4 +68,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(platform(libs.firebase.bom))
+    implementation("com.google.firebase:firebase-analytics")
 }
