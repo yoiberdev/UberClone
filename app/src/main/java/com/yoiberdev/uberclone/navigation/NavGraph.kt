@@ -11,7 +11,10 @@ import com.yoiberdev.uberclone.domain.usecase.LoginWithEmailUseCase
 import com.yoiberdev.uberclone.domain.usecase.LoginWithGoogleUseCase
 import com.yoiberdev.uberclone.presentation.auth.LoginScreen
 import com.yoiberdev.uberclone.presentation.auth.LoginViewModel
+import com.yoiberdev.uberclone.presentation.chat.ChatScreen
+import com.yoiberdev.uberclone.presentation.chat.ChatViewModel
 import com.yoiberdev.uberclone.presentation.home.HomeScreen
+import com.yoiberdev.uberclone.presentation.map.MapScreen
 import com.yoiberdev.uberclone.ui.screens.WelcomeScreen
 
 @Composable
@@ -65,15 +68,20 @@ fun NavGraph(modifier: Modifier = Modifier) {
                 }
             )
         }
-        composable("home") {
-            // HomeScreen será la pantalla que integra el chat y el mapa
+        composable(Screen.Home.route) {
             HomeScreen(
                 onLogout = {
-                    navController.navigate("welcome") {
-                        popUpTo("home") { inclusive = true }
+                    navController.navigate(Screen.Welcome.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
                     }
-                }
+                },
+                onChat = { navController.navigate(Screen.Chat.route) },
+                onMap = { navController.navigate(Screen.Map.route) }
             )
+        }
+
+        composable(Screen.Map.route) {
+            MapScreen(onBack = { navController.popBackStack() })
         }
     }
 }

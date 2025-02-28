@@ -41,7 +41,7 @@ android {
 }
 
 dependencies {
-
+    // Dependencias generales de AndroidX y Compose
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -51,16 +51,29 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
+
+    // Firebase BOM (único)
+    implementation(platform(libs.firebase.bom))
+
+    // Dependencias de Firebase
     implementation(libs.firebase.auth)
+    implementation(libs.google.firebase.auth) // Si realmente necesitas ambos, verifica que no sean duplicados
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.analytics)
+
+    // Firebase App Check (mantén solo un conjunto, en este caso usamos "appcheck")
+    implementation(libs.firebase.appcheck.ktx)
+    implementation(libs.firebase.appcheck.playintegrity)
+
+    // Otras dependencias
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
-    implementation(libs.google.firebase.auth)
-    implementation(libs.androidx.espresso.core)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.play.services.auth)
-    implementation(libs.firebase.firestore)
     implementation(libs.koin.androidx.compose)
+
+    // Dependencias para pruebas
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,6 +81,4 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
 }

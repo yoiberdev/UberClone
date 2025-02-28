@@ -38,7 +38,7 @@ fun ChatScreen(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Button(onClick = {
-                viewModel.sendMessage(newMessage, senderId = "currentUserId") // Cambia currentUserId según corresponda
+                viewModel.sendMessage(newMessage, senderId = "currentUserId")
                 newMessage = ""
             }) {
                 Text("Enviar")
@@ -49,9 +49,8 @@ fun ChatScreen(
 
 @Composable
 fun MessageItem(message: Message) {
-    // Simple representación del mensaje
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
-        Text(text = "De: ${message.senderId}", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
-        Text(text = message.text, style = androidx.compose.material3.MaterialTheme.typography.bodyMedium)
+        Text(text = "De: ${message.senderId}")
+        Text(text = message.text)
     }
 }

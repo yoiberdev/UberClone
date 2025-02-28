@@ -21,7 +21,6 @@ data class LoginUiState(
 class LoginViewModel(
     private val loginWithEmailUseCase: LoginWithEmailUseCase,
     private val loginWithGoogleUseCase: LoginWithGoogleUseCase
-    // O, si lo prefieres, inyecta directamente AuthRepository
 ) : ViewModel() {
 
     var uiState by mutableStateOf(LoginUiState())
