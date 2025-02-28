@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +27,6 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import com.yoiberdev.uberclone.R
 import kotlinx.coroutines.launch
 
-private const val WEB_CLIENT_ID = "109374279695-h4kljjl9lsmpi6fdke409ad58o2gp1vn.apps.googleusercontent.com"
 private const val TAG = "LoginScreen"
 
 @Composable
@@ -37,18 +35,19 @@ fun GoogleSignInButton(
     onLoginWithGoogle: (idToken: String) -> Unit
 ) {
     val context = LocalContext.current
-    val credentialManager = remember { CredentialManager.create(context) }
+    // Obtiene el WEB_CLIENT_ID desde los recursos en lugar de tenerlo hardcodeado.
+    val webClientId = context.getString(R.string.WEB_CLIENT_ID)
+    val credentialManager = CredentialManager.create(context)
     val coroutineScope = rememberCoroutineScope()
 
     OutlinedButton (
         onClick = {
-            // Desencadenar la lógica de obtener la credencial de Google
             if (!isLoading) {
                 coroutineScope.launch {
                     try {
                         val googleIdOption = GetGoogleIdOption.Builder()
                             .setFilterByAuthorizedAccounts(false)
-                            .setServerClientId(WEB_CLIENT_ID)
+                            .setServerClientId(webClientId) // Usando el valor del recurso
                             .setAutoSelectEnabled(true)
                             .build()
 
@@ -63,14 +62,11 @@ fun GoogleSignInButton(
                             val googleIdTokenCredential =
                                 GoogleIdTokenCredential.createFrom(credential.data)
                             val idToken = googleIdTokenCredential.idToken
-                            // Pasamos el idToken al ViewModel
                             onLoginWithGoogle(idToken)
                         } else {
                             Log.e(TAG, "Tipo de credencial inesperado: ${credential.type}")
-                            // Maneja error en UI o logs
                         }
                     } catch (e: GetCredentialException) {
-                        // Manejo de errores
                         Log.e(TAG, "Fallo al obtener credencial", e)
                     } catch (e: GoogleIdTokenParsingException) {
                         Log.e(TAG, "Token de Google ID inválido", e)
@@ -89,7 +85,6 @@ fun GoogleSignInButton(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            // Icono de Google
             Image(
                 painter = painterResource(id = R.drawable.ic_google),
                 contentDescription = "Google Icon",
