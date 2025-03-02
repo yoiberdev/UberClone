@@ -1,16 +1,34 @@
 [versions]
-agp = "8.8.0"
+agp = "8.8.2"
+firebaseBom = "33.9.0"
 kotlin = "2.0.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
-activityCompose = "1.10.0"
-composeBom = "2024.04.01"
+activityCompose = "1.10.1"
+composeBom = "2025.02.00"
+navigationCompose = "2.8.8"
+firebaseAuth = "23.2.0"
+credentials = "1.3.0"
+credentialsPlayServicesAuth = "1.3.0"
+googleid = "1.1.1"
+firebaseAuthVersion = "23.2.0"
+materialIconsExtended = "1.7.8"
+playServicesAuth = "21.3.0"
+firebaseFirestore = "25.1.2"
+koinAndroidxCompose = "4.1.0-Beta5"
+firebaseAppcheckKtx = "18.0.0"
+firebaseAppcheckPlayintegrity = "18.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-app-check = { module = "com.google.firebase:firebase-app-check" }
+firebase-app-check-playintegrity = { module = "com.google.firebase:firebase-app-check-playintegrity" }
+firebase-app-check-safetynet = { module = "com.google.firebase:firebase-app-check-safetynet" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -24,6 +42,20 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+#noinspection SimilarGradleDependency
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
+androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
+#noinspection SimilarGradleDependency
+google-firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuthVersion" }
+androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconsExtended" }
+play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koinAndroidxCompose" }
+firebase-appcheck-ktx = { group = "com.google.firebase", name = "firebase-appcheck-ktx", version.ref = "firebaseAppcheckKtx" }
+firebase-appcheck-playintegrity = { group = "com.google.firebase", name = "firebase-appcheck-playintegrity", version.ref = "firebaseAppcheckPlayintegrity" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
