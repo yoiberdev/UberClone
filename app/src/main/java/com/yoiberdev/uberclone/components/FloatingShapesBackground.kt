@@ -1,4 +1,4 @@
-package com.yoiberdev.uberclone.ui.components
+package com.yoiberdev.uberclone.components
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas

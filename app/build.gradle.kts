@@ -1,3 +1,15 @@
+import java.util.Properties
+
+fun loadEnvProperties(file: File): Properties {
+    val properties = Properties()
+    if (file.exists()) {
+        file.inputStream().use { properties.load(it) }
+    }
+    return properties
+}
+
+val envProperties = loadEnvProperties(rootProject.file(".env"))
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -12,13 +24,13 @@ android {
 
     defaultConfig {
         applicationId = "com.yoiberdev.uberclone"
-        minSdk = 34
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        resValue("string", "WEB_CLIENT_ID", project.findProperty("WEB_CLIENT_ID")?.toString() ?: "DEFAULT_WEB_CLIENT_ID")
+        buildConfigField("String", "WEB_CLIENT_ID", "\"${envProperties.getProperty("WEB_CLIENT_ID", "")}\"")
     }
 
     buildTypes {
@@ -69,10 +81,9 @@ dependencies {
     implementation(libs.firebase.appcheck.playintegrity)
 
     // Dependencias de Maps Compose
-    val mapsComposeVersion = "6.4.4"
-    implementation("com.google.maps.android:maps-compose:$mapsComposeVersion")
-    implementation("com.google.maps.android:maps-compose-utils:$mapsComposeVersion")
-    implementation("com.google.maps.android:maps-compose-widgets:$mapsComposeVersion")
+    implementation(libs.maps.compose)
+    implementation(libs.maps.compose.utils)
+    implementation(libs.maps.compose.widgets)
 
     // Otras dependencias
     implementation(libs.androidx.credentials)
