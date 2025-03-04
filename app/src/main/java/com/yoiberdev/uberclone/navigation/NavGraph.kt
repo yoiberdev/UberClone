@@ -114,19 +114,16 @@ fun NavGraph(modifier: Modifier = Modifier) {
 
         composable("taxi_detail/{requestId}") { backStackEntry ->
             val requestId = backStackEntry.arguments?.getString("requestId")
-            // Obtén tu ViewModel que contiene la lista de solicitudes
-            val taxiViewModel: TaxiMapViewModel = viewModel ()
-            // Busca la solicitud con el requestId obtenido
+            // Obtén el ViewModel que contiene la lista de solicitudes
+            val taxiViewModel: TaxiMapViewModel = viewModel()
+            // Busca la solicitud con el ID obtenido
             val request = taxiViewModel.rideRequests.value.find { it.id == requestId }
-
-
             if (request != null) {
                 TaxiMapDetailScreen(
                     onBack = { navController.popBackStack() },
                     rideRequest = request
                 )
             } else {
-                // Si no se encuentra, muestra un mensaje de error o una pantalla vacía.
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -135,6 +132,7 @@ fun NavGraph(modifier: Modifier = Modifier) {
                 }
             }
         }
+
 
 
         composable(Screen.Home.route) {

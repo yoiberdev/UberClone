@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,7 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun TaxiRequestsScreen(
     onBack: () -> Unit,
     onRequestSelected: (RideRequest) -> Unit,
-    viewModel: TaxiMapViewModel = viewModel() // Obtenemos el ViewModel que contiene rideRequests
+    viewModel: TaxiMapViewModel = viewModel() // ViewModel que contiene rideRequests e isLoading
 ) {
     // Inicia la escucha si aún no se ha iniciado
     viewModel.startListeningRideRequests()
@@ -51,37 +52,45 @@ fun TaxiRequestsScreen(
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            if (viewModel.rideRequests.value.isEmpty()) {
-                Text("No hay solicitudes guardadas")
-            } else {
-                LazyColumn {
-                    items(viewModel.rideRequests.value) { request ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp, horizontal = 8.dp)
-                        ) {
-                            Row(
+            when {
+                viewModel.isLoading.value -> {
+                    CircularProgressIndicator()
+                }
+                viewModel.rideRequests.value.isEmpty() -> {
+                    Text("No hay solicitudes guardadas")
+                }
+                else -> {
+                    LazyColumn {
+                        items(viewModel.rideRequests.value) { request ->
+                            Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                    .padding(vertical = 4.dp, horizontal = 8.dp)
                             ) {
-                                Column {
-                                    Text(text = "Cliente: ${request.clientName}", style = androidx.compose.material3.MaterialTheme.typography.bodyLarge)
-                                    // Usamos origin y destination de tipo LatLngData para mostrarlos
-                                    Text(
-                                        text = "Origen: ${request.origin.latitude}, ${request.origin.longitude}",
-                                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall
-                                    )
-                                    Text(
-                                        text = "Destino: ${request.destination.latitude}, ${request.destination.longitude}",
-                                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall
-                                    )
-                                }
-                                Button(onClick = { onRequestSelected(request) }) {
-                                    Text("Ver Ruta")
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = "Cliente: ${request.clientName}",
+                                            style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+                                        )
+                                        Text(
+                                            text = "Origen: ${request.origin.latitude}, ${request.origin.longitude}",
+                                            style = androidx.compose.material3.MaterialTheme.typography.bodySmall
+                                        )
+                                        Text(
+                                            text = "Destino: ${request.destination.latitude}, ${request.destination.longitude}",
+                                            style = androidx.compose.material3.MaterialTheme.typography.bodySmall
+                                        )
+                                    }
+                                    Button(onClick = { onRequestSelected(request) }) {
+                                        Text("Ver Ruta")
+                                    }
                                 }
                             }
                         }

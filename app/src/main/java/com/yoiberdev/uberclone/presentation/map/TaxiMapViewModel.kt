@@ -11,6 +11,10 @@ class TaxiMapViewModel : ViewModel() {
     var rideRequests = mutableStateOf<List<RideRequest>>(emptyList())
         private set
 
+    // Indicador de carga
+    var isLoading = mutableStateOf(true)
+        private set
+
     // Referencia a la base de datos en el nodo "ride_requests"
     private val dbRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("ride_requests")
 
@@ -25,9 +29,11 @@ class TaxiMapViewModel : ViewModel() {
                 }
             }
             rideRequests.value = list
+            isLoading.value = false  // Finaliza la carga
         }
         override fun onCancelled(error: DatabaseError) {
             // Maneja el error según convenga
+            isLoading.value = false
         }
     }
 
@@ -39,9 +45,7 @@ class TaxiMapViewModel : ViewModel() {
         dbRef.removeEventListener(rideRequestsListener)
     }
 
-    // (Opcional) Otros métodos para aceptar la solicitud, etc.
     fun acceptRideRequest(request: RideRequest) {
-        // Ejemplo: cambiar el estado en Firebase a "accepted"
         dbRef.child(request.id).child("status").setValue("accepted")
     }
 

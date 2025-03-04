@@ -41,7 +41,7 @@ fun TaxiMapDetailScreen(
     val originMarkerIcon = bitmapDescriptorFromVector(context, R.drawable.ic_marker_current)
     val destinationMarkerIcon = bitmapDescriptorFromVector(context, R.drawable.ic_marker_destination)
 
-    // Configurar la cámara para mostrar ambos puntos; en este ejemplo centramos en el origen
+    // Configurar la cámara (puedes ajustarla para que se vean ambos puntos)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(origin, 14f)
     }
@@ -74,14 +74,12 @@ fun TaxiMapDetailScreen(
                 modifier = Modifier.fillMaxSize(),
                 cameraPositionState = cameraPositionState
             ) {
-                // Marcador en el origen
                 Marker(
                     state = com.google.maps.android.compose.MarkerState(position = origin),
                     title = "Origen",
                     snippet = "Ubicación del cliente",
                     icon = originMarkerIcon
                 )
-                // Marcador en el destino
                 Marker(
                     state = com.google.maps.android.compose.MarkerState(position = destination),
                     title = "Destino",
