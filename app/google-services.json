@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "109374279695",
+    "firebase_url": "https://uberclone-19d7a-default-rtdb.firebaseio.com",
     "project_id": "uberclone-19d7a",
     "storage_bucket": "uberclone-19d7a.firebasestorage.app"
   },
@@ -22,7 +23,23 @@
           }
         },
         {
-          "client_id": "109374279695-h4kljjl9lsmpi6fdke409ad58o2gp1vn.apps.googleusercontent.com",
+          "client_id": "109374279695-8sfo7sjv8fpff6cunvvhes198v280r18.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yoiberdev.uberclone",
+            "certificate_hash": "58c979c9530733093e0188b3a6b09aa7e0ead2e0"
+          }
+        },
+        {
+          "client_id": "109374279695-l78m29fus0kqeelpt8p9e4lvllchmv3t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yoiberdev.uberclone",
+            "certificate_hash": "d690a331afac6ba10eee48db83e14e66d229fbda"
+          }
+        },
+        {
+          "client_id": "109374279695-tot5pi80ah47llpvlpbp0l9es7v72eu1.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

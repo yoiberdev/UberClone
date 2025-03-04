@@ -30,6 +30,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "MAPS_API_KEY", "\"${project.findProperty("MAPS_API_KEY") ?: ""}\"")
         buildConfigField("String", "WEB_CLIENT_ID", "\"${envProperties.getProperty("WEB_CLIENT_ID", "")}\"")
     }
 
@@ -92,6 +93,9 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.play.services.auth)
     implementation(libs.koin.androidx.compose)
+    implementation(libs.play.services.location)
+    implementation(libs.accompanist.permissions)
+    implementation(libs.firebase.database.ktx)
 
     // Dependencias para pruebas
     testImplementation(libs.junit)

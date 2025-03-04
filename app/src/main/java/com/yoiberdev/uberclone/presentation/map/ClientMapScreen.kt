@@ -30,9 +30,10 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("MissingPermission", "UnrememberedMutableState")
 @Composable
-fun MapScreen(
+fun ClientMapScreen(
     onBack: () -> Unit,
-    viewModel: MapViewModel = viewModel()  // Usamos viewModel() para preservar estado
+    onRequestSuccess: () -> Unit,
+    viewModel: ClientMapViewModel = viewModel() // ViewModel especializado para la lógica del cliente
 ) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
@@ -40,14 +41,13 @@ fun MapScreen(
     }
     val coroutineScope = rememberCoroutineScope()
 
-    // Solicita la ubicación actual si no está disponible.
+    // Solicitar la ubicación actual
     if (viewModel.currentLatLng == null) {
         LaunchedEffect(Unit) {
             val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    val latLng = LatLng(location.latitude, location.longitude)
-                    viewModel.updateCurrentLocation(latLng)
+                location?.let {
+                    viewModel.updateCurrentLocation(LatLng(it.latitude, it.longitude))
                 }
             }
         }
@@ -57,10 +57,10 @@ fun MapScreen(
         return
     }
 
-    // Estado para almacenar la ruta (lista de coordenadas) entre origen y destino.
+    // Estado para la ruta (lista de coordenadas) entre origen y destino.
     var routePoints by remember { mutableStateOf<List<LatLng>>(emptyList()) }
 
-    // Cuando se actualice el destino y tengamos la ubicación actual, obtenemos la ruta.
+    // Calcular la ruta cuando se actualicen los puntos
     LaunchedEffect(viewModel.destinationLatLng, viewModel.currentLatLng) {
         val origin = viewModel.currentLatLng
         val dest = viewModel.destinationLatLng
@@ -68,20 +68,25 @@ fun MapScreen(
             routePoints = fetchDirectionsRoute(origin, dest)
         }
     }
-
-    // Configura la cámara con un zoom alto (por ejemplo, 19f) para ver detalles de las calles.
+    LaunchedEffect(viewModel.taxiRequestSuccess) {
+        if (viewModel.taxiRequestSuccess) {
+            // Redirige a la pantalla de solicitudes.
+            onRequestSuccess() // Este callback se define en el NavGraph y realiza la navegación.
+        }
+    }
+    // Configurar la cámara con zoom para ver detalles.
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(viewModel.currentLatLng!!, 19f)
     }
 
-    // Actualiza la cámara cuando cambia la ubicación actual.
+    // Actualizar la cámara al cambiar la ubicación actual.
     LaunchedEffect(viewModel.currentLatLng) {
         viewModel.currentLatLng?.let { latLng ->
             cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(latLng, 19f))
         }
     }
 
-    // Obtén los BitmapDescriptor para tus marcadores personalizados.
+    // Marcadores personalizados
     val currentMarkerIcon = bitmapDescriptorFromVector(context, R.drawable.ic_marker_current)
     val destinationMarkerIcon = bitmapDescriptorFromVector(context, R.drawable.ic_marker_destination)
 
@@ -90,7 +95,7 @@ fun MapScreen(
             modifier = Modifier.fillMaxSize(),
             cameraPositionState = cameraPositionState,
             onMapClick = { latLng ->
-                // Al tocar el mapa se marca el destino.
+                // Al tocar el mapa se establece el destino.
                 viewModel.setDestination(latLng)
             }
         ) {
@@ -101,16 +106,16 @@ fun MapScreen(
                 snippet = "Aquí estás",
                 icon = currentMarkerIcon
             )
-            // Marcador para el destino, si está definido.
+            // Marcador para el destino, si se definió.
             viewModel.destinationLatLng?.let { dest ->
                 Marker(
                     state = com.google.maps.android.compose.MarkerState(position = dest),
                     title = "Destino",
-                    snippet = "Aquí quieres ir",
+                    snippet = "Lugar seleccionado",
                     icon = destinationMarkerIcon
                 )
             }
-            // Dibuja la ruta (polyline) si se obtuvo.
+            // Dibujar la ruta si se obtuvo.
             if (routePoints.isNotEmpty()) {
                 Polyline(
                     points = routePoints,
@@ -120,7 +125,7 @@ fun MapScreen(
             }
         }
 
-        // Botón de retroceso en la esquina superior izquierda.
+        // Botón de retroceso.
         IconButton(
             onClick = onBack,
             modifier = Modifier
@@ -133,7 +138,7 @@ fun MapScreen(
             )
         }
 
-        // Panel inferior con inputs.
+        // Panel inferior con campos de texto e inputs.
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -154,19 +159,33 @@ fun MapScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                onClick = {
-                    val origin = viewModel.currentLatLng
-                    val dest = viewModel.destinationLatLng
-                    if (origin != null && dest != null) {
-                        coroutineScope.launch {
-                            routePoints = fetchDirectionsRoute(origin, dest)
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Button(
+                    onClick = {
+                        val origin = viewModel.currentLatLng
+                        val dest = viewModel.destinationLatLng
+                        if (origin != null && dest != null) {
+                            coroutineScope.launch {
+                                routePoints = fetchDirectionsRoute(origin, dest)
+                            }
                         }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Calcular Ruta")
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Button(
+                        onClick = {
+                            viewModel.requestTaxi()
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Solicitar Taxi")
                     }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Calcular Ruta")
+                }
             }
         }
     }

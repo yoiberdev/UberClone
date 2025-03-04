@@ -1,7 +1,12 @@
 package com.yoiberdev.uberclone.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -11,7 +16,15 @@ import com.yoiberdev.uberclone.domain.usecase.LoginWithGoogleUseCase
 import com.yoiberdev.uberclone.presentation.auth.LoginScreen
 import com.yoiberdev.uberclone.presentation.auth.LoginViewModel
 import com.yoiberdev.uberclone.presentation.home.HomeScreen
+import com.yoiberdev.uberclone.presentation.location.LocationScreen
+import com.yoiberdev.uberclone.presentation.map.ClientMapScreen
+import com.yoiberdev.uberclone.presentation.map.ClientRequestsScreen
+import com.yoiberdev.uberclone.presentation.map.LocationPermissionContainer
 import com.yoiberdev.uberclone.presentation.map.MapScreen
+import com.yoiberdev.uberclone.presentation.map.TaxiMapDetailScreen
+import com.yoiberdev.uberclone.presentation.map.TaxiMapScreen
+import com.yoiberdev.uberclone.presentation.map.TaxiMapViewModel
+import com.yoiberdev.uberclone.presentation.map.TaxiRequestsScreen
 import com.yoiberdev.uberclone.presentation.welcome.WelcomeScreen
 
 @Composable
@@ -26,7 +39,7 @@ fun NavGraph(modifier: Modifier = Modifier) {
             )
         }
         composable("login_cliente") {
-            // Instanciar manualmente las dependencias
+            // Instanciar las dependencias para Cliente
             val auth = FirebaseAuth.getInstance()
             val authRepository = com.yoiberdev.uberclone.domain.repository.AuthRepositoryImpl(auth)
             val loginWithEmailUseCase = LoginWithEmailUseCase(authRepository)
@@ -38,15 +51,15 @@ fun NavGraph(modifier: Modifier = Modifier) {
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onLoginSuccess = {
-                    // Una vez logueado, navega a HomeScreen
-                    navController.navigate("home") {
+                    // Navegar a la pantalla de mapa para cliente
+                    navController.navigate("client_map") {
                         popUpTo("welcome") { inclusive = true }
                     }
                 }
             )
         }
         composable("login_taxista") {
-            // Instanciar manualmente las dependencias
+            // Instanciar las dependencias para Taxista
             val auth = FirebaseAuth.getInstance()
             val authRepository = com.yoiberdev.uberclone.domain.repository.AuthRepositoryImpl(auth)
             val loginWithEmailUseCase = LoginWithEmailUseCase(authRepository)
@@ -58,13 +71,57 @@ fun NavGraph(modifier: Modifier = Modifier) {
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onLoginSuccess = {
-                    // Una vez logueado, navega a HomeScreen
-                    navController.navigate("home") {
+                    // Navegar a la pantalla de mapa para taxista
+                    navController.navigate("taxi_map") {
                         popUpTo("welcome") { inclusive = true }
                     }
                 }
             )
         }
+        composable("client_map") {
+            ClientMapScreen(
+                onBack = { navController.popBackStack() },
+                onRequestSuccess = { navController.navigate("client_requests") }
+            )
+        }
+        composable("client_requests") {
+            ClientRequestsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable("taxi_requests") {
+            TaxiRequestsScreen(
+                onBack = { navController.popBackStack() },
+                onRequestSelected = { request ->
+                    navController.navigate("taxi_detail/${request.id}")
+                }
+            )
+        }
+
+        composable("taxi_detail/{requestId}") { backStackEntry ->
+            val requestId = backStackEntry.arguments?.getString("requestId")
+            // Obtén tu ViewModel que contiene la lista de solicitudes
+            val taxiViewModel: TaxiMapViewModel = viewModel ()
+            // Busca la solicitud con el requestId obtenido
+            val request = taxiViewModel.rideRequests.find { it.id == requestId }
+
+            if (request != null) {
+                TaxiMapDetailScreen(
+                    onBack = { navController.popBackStack() },
+                    rideRequest = request
+                )
+            } else {
+                // Si no se encuentra, muestra un mensaje de error o una pantalla vacía.
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Solicitud no encontrada")
+                }
+            }
+        }
+
+
         composable(Screen.Home.route) {
             HomeScreen(
                 onLogout = {
@@ -77,7 +134,7 @@ fun NavGraph(modifier: Modifier = Modifier) {
             )
         }
 
-        composable(Screen.Map.route) {
+        composable("map") {
             MapScreen(onBack = { navController.popBackStack() })
         }
     }
