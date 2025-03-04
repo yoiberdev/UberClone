@@ -71,8 +71,7 @@ fun NavGraph(modifier: Modifier = Modifier) {
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onLoginSuccess = {
-                    // Navegar a la pantalla de mapa para taxista
-                    navController.navigate("taxi_map") {
+                    navController.navigate("taxi_home") {
                         popUpTo("welcome") { inclusive = true }
                     }
                 }
@@ -89,6 +88,18 @@ fun NavGraph(modifier: Modifier = Modifier) {
                 onBack = { navController.popBackStack() }
             )
         }
+        composable("taxi_home") {
+            com.yoiberdev.uberclone.presentation.home.TaxiHomeScreen(
+                onLogout = {
+                    navController.navigate("welcome") {
+                        popUpTo("taxi_home") { inclusive = true }
+                    }
+                },
+                onViewRequests = {
+                    navController.navigate("taxi_requests")
+                }
+            )
+        }
         composable("taxi_requests") {
             TaxiRequestsScreen(
                 onBack = { navController.popBackStack() },
@@ -97,13 +108,17 @@ fun NavGraph(modifier: Modifier = Modifier) {
                 }
             )
         }
+        composable("taxi_map") {
+            TaxiMapScreen(onBack = { navController.popBackStack() })
+        }
 
         composable("taxi_detail/{requestId}") { backStackEntry ->
             val requestId = backStackEntry.arguments?.getString("requestId")
             // Obtén tu ViewModel que contiene la lista de solicitudes
             val taxiViewModel: TaxiMapViewModel = viewModel ()
             // Busca la solicitud con el requestId obtenido
-            val request = taxiViewModel.rideRequests.find { it.id == requestId }
+            val request = taxiViewModel.rideRequests.value.find { it.id == requestId }
+
 
             if (request != null) {
                 TaxiMapDetailScreen(

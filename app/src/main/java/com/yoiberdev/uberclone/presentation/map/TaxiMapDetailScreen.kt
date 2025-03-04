@@ -14,8 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -26,8 +26,8 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.yoiberdev.uberclone.R
 import com.yoiberdev.uberclone.utils.bitmapDescriptorFromVector
 
-@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("MissingPermission", "UnrememberedMutableState")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaxiMapDetailScreen(
     onBack: () -> Unit,
@@ -37,16 +37,15 @@ fun TaxiMapDetailScreen(
     val origin = LatLng(rideRequest.origin.latitude, rideRequest.origin.longitude)
     val destination = LatLng(rideRequest.destination.latitude, rideRequest.destination.longitude)
 
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val currentMarkerIcon = bitmapDescriptorFromVector(context, R.drawable.ic_marker_current)
+    val context = LocalContext.current
+    val originMarkerIcon = bitmapDescriptorFromVector(context, R.drawable.ic_marker_current)
     val destinationMarkerIcon = bitmapDescriptorFromVector(context, R.drawable.ic_marker_destination)
 
-    // Configurar la cámara para mostrar ambos puntos (por simplicidad se centra en el origen)
+    // Configurar la cámara para mostrar ambos puntos; en este ejemplo centramos en el origen
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(origin, 14f)
     }
 
-    // Opcional: podrías ajustar la cámara para que se vea todo el trayecto usando bounds.
     LaunchedEffect(Unit) {
         cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(origin, 14f))
     }
@@ -80,7 +79,7 @@ fun TaxiMapDetailScreen(
                     state = com.google.maps.android.compose.MarkerState(position = origin),
                     title = "Origen",
                     snippet = "Ubicación del cliente",
-                    icon = currentMarkerIcon
+                    icon = originMarkerIcon
                 )
                 // Marcador en el destino
                 Marker(

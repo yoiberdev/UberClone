@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import com.google.android.gms.maps.MapsInitializer
 import com.google.firebase.appcheck.FirebaseAppCheck
 import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.yoiberdev.uberclone.navigation.NavGraph
@@ -23,6 +24,9 @@ class MainActivity : ComponentActivity() {
         firebaseAppCheck.installAppCheckProviderFactory(
             PlayIntegrityAppCheckProviderFactory.getInstance()
         )
+
+        // Inicializar Google Maps (esto es crucial para BitmapDescriptorFactory)
+        MapsInitializer.initialize(applicationContext)
 
         setContent {
             UberCloneTheme {

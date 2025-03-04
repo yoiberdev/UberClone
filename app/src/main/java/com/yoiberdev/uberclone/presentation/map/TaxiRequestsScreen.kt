@@ -25,8 +25,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun TaxiRequestsScreen(
     onBack: () -> Unit,
     onRequestSelected: (RideRequest) -> Unit,
-    viewModel: TaxiMapViewModel = viewModel() // ViewModel que contiene rideRequests
+    viewModel: TaxiMapViewModel = viewModel() // Obtenemos el ViewModel que contiene rideRequests
 ) {
+    // Inicia la escucha si aún no se ha iniciado
+    viewModel.startListeningRideRequests()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -48,11 +51,11 @@ fun TaxiRequestsScreen(
                 .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            if (viewModel.rideRequests.isEmpty()) {
+            if (viewModel.rideRequests.value.isEmpty()) {
                 Text("No hay solicitudes guardadas")
             } else {
                 LazyColumn {
-                    items(viewModel.rideRequests) { request ->
+                    items(viewModel.rideRequests.value) { request ->
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -66,18 +69,14 @@ fun TaxiRequestsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column {
+                                    Text(text = "Cliente: ${request.clientName}", style = androidx.compose.material3.MaterialTheme.typography.bodyLarge)
+                                    // Usamos origin y destination de tipo LatLngData para mostrarlos
                                     Text(
-                                        text = "Cliente: ${request.clientName}",
-                                        style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
-                                    )
-                                    val origin = request.origin
-                                    val destination = request.destination
-                                    Text(
-                                        text = "Origen: ${origin.latitude}, ${origin.longitude}",
+                                        text = "Origen: ${request.origin.latitude}, ${request.origin.longitude}",
                                         style = androidx.compose.material3.MaterialTheme.typography.bodySmall
                                     )
                                     Text(
-                                        text = "Destino: ${destination.latitude}, ${destination.longitude}",
+                                        text = "Destino: ${request.destination.latitude}, ${request.destination.longitude}",
                                         style = androidx.compose.material3.MaterialTheme.typography.bodySmall
                                     )
                                 }

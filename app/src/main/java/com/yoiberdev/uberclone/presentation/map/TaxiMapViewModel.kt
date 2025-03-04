@@ -1,62 +1,50 @@
-// TaxiMapViewModel.kt
 package com.yoiberdev.uberclone.presentation.map
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.database.*
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.android.gms.maps.model.LatLng
 
 class TaxiMapViewModel : ViewModel() {
 
-    // Ubicación actual del taxista
-    var currentLatLng by mutableStateOf<LatLng?>(null)
+    // Lista de solicitudes leídas de Firebase
+    var rideRequests = mutableStateOf<List<RideRequest>>(emptyList())
         private set
 
-    // Lista de RideRequest
-    var rideRequests by mutableStateOf<List<RideRequest>>(emptyList())  // <--- Aquí la lista
-        private set
-
-    // Para escuchar la ruta "ride_requests" de Firebase
-    private val firebaseRef: DatabaseReference =
-        FirebaseDatabase.getInstance().getReference("ride_requests")
-
-    fun startListeningRideRequests() {
-        firebaseRef.addValueEventListener(rideRequestsListener)
-    }
-
-    fun stopListeningRideRequests() {
-        firebaseRef.removeEventListener(rideRequestsListener)
-    }
+    // Referencia a la base de datos en el nodo "ride_requests"
+    private val dbRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("ride_requests")
 
     private val rideRequestsListener = object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
-            val newRequests = mutableListOf<RideRequest>()
+            val list = mutableListOf<RideRequest>()
             for (child in snapshot.children) {
                 val request = child.getValue(RideRequest::class.java)
                 if (request != null) {
-                    newRequests.add(request)
+                    // Asigna el ID obtenido de la key del snapshot
+                    list.add(request.copy(id = child.key ?: ""))
                 }
             }
-            rideRequests = newRequests
+            rideRequests.value = list
         }
-
         override fun onCancelled(error: DatabaseError) {
-            // Manejar error
+            // Maneja el error según convenga
         }
     }
 
+    fun startListeningRideRequests() {
+        dbRef.addValueEventListener(rideRequestsListener)
+    }
+
+    fun stopListeningRideRequests() {
+        dbRef.removeEventListener(rideRequestsListener)
+    }
+
+    // (Opcional) Otros métodos para aceptar la solicitud, etc.
     fun acceptRideRequest(request: RideRequest) {
-        // Ejemplo: cambiar el estado en la base de datos a 'accepted'
-        if (request.id.isNotEmpty()) {
-            firebaseRef.child(request.id).child("status").setValue("accepted")
-        }
+        // Ejemplo: cambiar el estado en Firebase a "accepted"
+        dbRef.child(request.id).child("status").setValue("accepted")
     }
 
-    fun updateCurrentLatLng(latLng: LatLng) {
-        currentLatLng = latLng
-        // Podrías actualizar Firebase con la ubicación del taxista si quisieras.
-    }
+    // Para la ubicación actual del taxista (si la necesitas)
+    var currentLatLng = mutableStateOf<LatLng?>(null)
 }
